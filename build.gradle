@@ -1,0 +1,59 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+	    url=uri('/tmp/core-grpc-delegate/repo')
+	}
+    }
+    dependencies {
+        classpath 'com.github.lburgazzoli:gradle-karaf-plugin:0.0.49'
+        classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:3.5.+'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        maven {
+	    url=uri('/tmp/core-grpc-delegate/repo')
+	}
+    }
+}
+
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'maven'
+apply plugin: 'idea'
+apply plugin: 'biz.aQute.bnd.builder'
+apply plugin: 'com.github.lburgazzoli.karaf'
+
+configurations {
+    additionalBundles
+}
+
+dependencies {
+    compile 'org.osgi:org.osgi.compendium:5.0.0'
+    compile 'org.osgi:org.osgi.annotation:6.0.0'
+    compile 'com.greeting:core-grpc-delegate:1.0.0-rel.0-SNAPSHOT'
+    additionalBundles ('com.greeting:core-grpc-delegate:1.0.0-rel.0-SNAPSHOT') { transitive = false }
+}
+
+karaf {
+    features {
+
+        feature {
+            name        = project.name
+            description = project.description
+            includeProject=true
+            feature 'scr'
+	    configurations 'additionalBundles'
+
+        }
+    }
+    kar {
+        enabled = true
+    }
+}
+
+defaultTasks 'clean', 'build'
